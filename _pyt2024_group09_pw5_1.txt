@@ -1,0 +1,25 @@
+import socket
+
+url = input("Enter the URL: ")
+try:
+    parts = url.split('/')
+    host = parts[2]
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s: #tcp socket make using ipv4
+        s.connect((host, 80))
+        s.sendall(f"GET / HTTP/1.1\r\nHost: {host}\r\nConnection: close\r\n\r\n".encode()) # send get http req, host noraditais, sledz conection, parveido bytos
+        received_data = b""  # Initialize an empty bytes string to store received data
+
+        while True:
+            data = s.recv(512)
+            if not data:
+                break
+            received_data += data
+
+        end_of_headers_index = received_data.find(b'\r\n\r\n') #iedod vertibu beigu tuksas linijas 
+        if end_of_headers_index != -1:
+            html_content = received_data[end_of_headers_index:].decode()
+            print(html_content[:1700])  # Print up to x characters of HTML content
+        else:
+            print("Error: No end of headers found.")
+except (IndexError, ValueError, ConnectionError) as e:
+    print("Error: Invalid or non-existent URL entered.")

@@ -1,0 +1,48 @@
+import requests
+from bs4 import BeautifulSoup
+
+# IMDb movie URL
+url = "https://www.imdb.com/title/tt6084202/"
+
+# Define custom user agent to mimic browser behavior
+headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"}
+
+# Fetch the webpage
+response = requests.get(url, headers=headers)
+soup = BeautifulSoup(response.content, "html.parser")
+
+# Extract director
+director_element = soup.find('a', {'class': 'ipc-metadata-list-item__list-content-item ipc-metadata-list-item__list-content-item--link'})
+director = director_element.text if director_element else "Not found"
+
+# Extract writers
+writers_elements = soup.find_all('a', {'class': 'ipc-metadata-list-item__list-content-item ipc-metadata-list-item__list-content-item--link'})
+writers = [writer.text for writer in writers_elements if writer.text != "See full cast & crew"][1:3]  
+
+# Extract stars
+stars_elements = soup.find_all('a', {'class': 'ipc-metadata-list-item__list-content-item ipc-metadata-list-item__list-content-item--link'})
+stars = [star.text for star in stars_elements if star.text != "See full cast & crew"][3:6]  
+
+# Extract awards and nominations
+awards_element = soup.find('span', {'class': 'ipc-metadata-list-item__list-content-item'})
+awards = awards_element.text
+
+# Extract cast list and their roles
+cast_list = []
+cast_elements = soup.find_all('a', {'data-testid': 'title-cast-item__actor'})
+role_elements = soup.find_all('span', {'class': 'sc-bfec09a1-4 kvTUwN'})
+
+for actor, role in zip(cast_elements, role_elements):
+    cast_list.append({"Actor": actor.text, "Role": role.text})
+
+# Print extracted information
+print("Director:", director)
+print("Writers:", writers)
+print("Stars:", stars)
+print("Awards and Nominations:", awards)
+print("Cast List:")
+for i in range(len(cast_list)):
+    print(f"{i + 1}. {cast_list[i]['Actor']} as {cast_list[i]['Role']}")
+
+
+

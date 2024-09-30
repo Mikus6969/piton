@@ -1,0 +1,51 @@
+import requests
+
+def reverse_geocode(lat, lon):
+    # Define the endpoint URL for reverse geocoding
+    url = "https://nominatim.openstreetmap.org/reverse"
+
+    # Set the parameters for the request
+    parameters = {
+        'lat': lat,  # Latitude
+        'lon': lon,  # Longitude
+        'format': 'json'  # Response format (JSON)
+    }
+    
+    # Make the HTTP GET request to the Nominatim API
+    response = requests.get(url, params=parameters)
+    
+    # Check if the request was successful (HTTP status code 200)
+    if response.status_code == 200:
+        data = response.json()
+        return data
+    else:
+        return None  # Return None if the request failed
+
+def display_location_info(data):
+    if data:
+        address = data.get('address', {})
+        print("Name of Place:", data.get('display_name'))
+        print("Type:", data.get('type'))  # Display location
+        print("House Number:", address.get('house_number'))
+        print("Street:", address.get('road'))
+        # Display city (fallback to town or village if city is not available)
+        print("City:", address.get('city', address.get('town', address.get('village'))))
+        print("Postcode:", address.get('postcode'))
+        print("Country:", address.get('country'))
+        print("Country Code:", address.get('country_code'))
+    else:
+        print("No data found for the provided coordinates.")
+
+def main():
+    
+    latitude = input("Enter latitude: ")
+    longitude = input("Enter longitude: ")
+    
+    # Call the function to perform reverse geocoding
+    data = reverse_geocode(latitude, longitude)
+    
+    # Display location information
+    display_location_info(data)
+
+if __name__ == "__main__":
+    main()
